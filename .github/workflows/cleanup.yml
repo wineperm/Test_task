@@ -1,0 +1,38 @@
+name: Cleanup Docker Containers and Network
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4.2.2
+
+    - name: Get IP from inventory
+      id: get_ip
+      run: |
+        IP=$(grep -oP '(?<=^)[0-9.]+(?= ansible_user=qwerty)' ansible/inventory)
+        echo "::set-output name=ip::$IP"
+
+    - name: Set up SSH
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_IP: ${{ steps.get_ip.outputs.ip }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -H $REMOTE_IP >> ~/.ssh/known_hosts
+
+    - name: Cleanup Docker Containers and Network
+      env:
+        REMOTE_IP: ${{ steps.get_ip.outputs.ip }}
+      run: |
+        ssh -o StrictHostKeyChecking=no qwerty@$REMOTE_IP << 'EOF'
+        sudo docker stop $(sudo docker ps -aq)
+        sudo docker rm $(sudo docker ps -aq)
+        sudo docker network rm nginx-php-app_default
+        EOF
