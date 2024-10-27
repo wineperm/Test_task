@@ -1,0 +1,21 @@
+---
+- name: Create app directory
+  file:
+    path: "{{ project_path }}/app"
+    state: directory
+
+- name: Copy Dockerfile for PHP
+  copy:
+    src: Dockerfile
+    dest: "{{ project_path }}/Dockerfile"
+
+- name: Copy PHP application
+  copy:
+    src: index.php
+    dest: "{{ project_path }}/app/index.php"
+
+- name: Copy PHP test script
+  copy:
+    src: test_db.php
+    dest: "{{ project_path }}/app/test_db.php"
+

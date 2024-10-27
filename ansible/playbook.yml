@@ -1,0 +1,11 @@
+---
+- name: Deploy Dockerized Web Application
+  hosts: web
+  become: yes
+  vars:
+    project_path: /var/www/nginx-php-app
+  roles:
+    - docker
+    - nginx
+    - php
+
