@@ -1,0 +1,60 @@
+---
+- name: Install Docker
+  apt:
+    name: docker.io
+    state: present
+
+- name: Install Docker Compose
+  apt:
+    name: docker-compose
+    state: present
+
+- name: Create project directory
+  file:
+    path: "{{ project_path }}"
+    state: directory
+
+- name: Copy Docker Compose file
+  copy:
+    src: docker-compose.yml
+    dest: "{{ project_path }}/docker-compose.yml"
+
+- name: Create nginx directory
+  file:
+    path: "{{ project_path }}/nginx"
+    state: directory
+
+- name: Copy Dockerfile for NGINX
+  copy:
+    src: ../nginx/files/Dockerfile
+    dest: "{{ project_path }}/nginx/Dockerfile"
+
+- name: Copy NGINX configuration
+  template:
+    src: ../nginx/templates/nginx.conf.j2
+    dest: "{{ project_path }}/nginx/nginx.conf"
+
+- name: Create app directory
+  file:
+    path: "{{ project_path }}/app"
+    state: directory
+
+- name: Copy Dockerfile for PHP
+  copy:
+    src: ../php/files/Dockerfile
+    dest: "{{ project_path }}/Dockerfile"
+
+- name: Copy PHP application
+  copy:
+    src: ../php/files/index.php
+    dest: "{{ project_path }}/app/index.php"
+
+- name: Copy PHP test script
+  copy:
+    src: ../php/files/test_db.php
+    dest: "{{ project_path }}/app/test_db.php"
+
+- name: Start Docker Compose
+  command: docker-compose up -d
+  args:
+    chdir: "{{ project_path }}"
