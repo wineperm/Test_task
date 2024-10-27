@@ -1,3 +1,0 @@
-[web]
-89.169.157.40 ansible_user=qwerty ansible_ssh_private_key_file=/home/qwerty/.ssh/id_ed25519
-
